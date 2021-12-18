@@ -13,7 +13,7 @@ verifyToken = (req, res, next) => {
             return res.status(401).send({ message: "Unauthorized!" });
         }
         req.user = {
-            id: decoded.id,
+            id: decoded._id,
             role: decoded.role
         }
         next();

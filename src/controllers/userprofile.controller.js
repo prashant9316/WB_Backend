@@ -1,16 +1,20 @@
 const User = require('../models/user.model')
 const UserProfile = require('../models/userprofile.model')
+const shortid = require('shortid')
 
 exports.getUserInfo = async (req, res) => {
     try {
-        const userProfile = UserProfile.findOne({
-            phoneNumber: req.body.phoneNumber
+        const user = await User.findOne({ _id: req.user.id })
+        const userProfile = await UserProfile.findOne({
+            phoneNumber: user.phoneNumber
         })
         if(!userProfile){
-            return res.status(404).json({ message: "User profile not found!" })
+            return res.status(200).json({ message: "User profile not found!", userProfile: {name: 'User'} })
         }
-        return res.status(200).json({ userProfile, message: "User Profile Found!" })
+        return res.status(200).json({ userProfile: userProfile, message: "User Profile Found!", code: 200 })
     } catch (error) {
+        console.log(error)
+
         return res.status(500).json({ message: error, code: 500})
     }
 }
@@ -19,7 +23,7 @@ exports.getUserInfo = async (req, res) => {
 exports.createProfile = async (req, res) => {
     try {
         let userprofile = await UserProfile.findOne({ phoneNumber: req.body.phoneNumber})
-        if(userprofile){
+        if(!userprofile){
             return res.status(400).json({ message: "User Profile already exists!", code: 400})
         }
         const userProfile = new UserProfile({
@@ -29,11 +33,13 @@ exports.createProfile = async (req, res) => {
             age: req.body.age,
             gender: req.body.gender,
             dob: req.body.dob,
-            address: req.body.address
+            address: req.body.address,
+            email: req.body.email
         })
         await userProfile.save()
         return res.status(200).json({ message: "user Profile created!", code: 200})
     } catch (error) {
+        console.log(error)
         return res.status(500).send({ message: error, code: 500 })
     }
 }
@@ -41,9 +47,22 @@ exports.createProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
     try {
+        const user = await User.findOne({ _id: req.user.id })
         const userProfile = await UserProfile.findOne({ phoneNumber: req.body.phoneNumber })
         if(!userProfile){
-            return res.status(404).json({ message: "User Profile doesn't Exist. Please First Create New User Profile", code: 404})
+            console.log(req.body)
+            let username = req.body.name + "-" + shortid.generate()
+            const userProfile = new UserProfile({
+                username, 
+                name: req.body.name, 
+                age: req.body.age,
+                gender: req.body.gender,
+                dob: req.body.dob,
+                email: req.body.email,
+                phoneNumber: user.phoneNumber
+            })
+            await userProfile.save()
+            return res.status(200).json({ message: "User Profile created successfully!", code: 200 })
         }
         await UserProfile.findOneAndUpdate({ phoneNumber: req.body.phoneNumber }, 
             {
@@ -53,6 +72,7 @@ exports.updateProfile = async (req, res) => {
             })
         return res.status(200).json({ message: "User Profile Updated!", code: 200})
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ message: error, code: 500 })
     }
 }

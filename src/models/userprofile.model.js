@@ -14,7 +14,8 @@ const UserProfile = mongoose.model(
         }, 
         phoneNumber: {
             type: String,
-            required: true
+            required: true,
+            unique: true
         },
         gender: {
             type: String,
@@ -24,12 +25,24 @@ const UserProfile = mongoose.model(
             type: String,
         },
         address: {
-            type: String
+            line1: String,
+            line2: String,
+            city: String,
+            state: String,
+            zip: String,
+            country: String,
+            number: String
         },
         aadharNumber: {
             type: String
         },
-        
+        email: {
+            type: String,
+        },
+        addressflag: {
+            type: Boolean,
+            default: false,
+        }
     })
 )
 

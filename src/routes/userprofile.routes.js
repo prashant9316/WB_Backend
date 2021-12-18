@@ -11,7 +11,7 @@ module.exports = function(app){
 
     app.post(
         '/api/user/createprofile',
-        controller.newProfile
+        controller.createProfile
     )
 
     app.post(

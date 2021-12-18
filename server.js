@@ -1,6 +1,7 @@
 if(process.env.NODE_ENV !== 'production'){
     require('dotenv').config()
 }
+const frontend = 'http://127.0.0.1:8081'
 const express = require('express')
 const logger = require('morgan')
 const cookieParser = require('cookie-parser')
@@ -10,7 +11,7 @@ const mongoose = require('mongoose')
 const app = express()
 
 var corsOptions = {
-    origin: "*",
+    origin: frontend,
     methods: [
         'GET', 
         'POST'
@@ -41,7 +42,9 @@ app.get('/', (req, res) => {
 
 // Imported Routes for User
 require('./src/routes/auth2.routes')(app); // User Login
-
+require('./src/routes/userprofile.routes')(app);
+require('./src/routes/cart.routes')(app);
+require('./src/routes/order.routes')(app);
 
 // Starting the Server
 app.listen(process.env.PORT || 5000, () => {
