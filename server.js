@@ -10,13 +10,26 @@ const mongoose = require('mongoose')
 
 const app = express()
 
+const whitelistip = ['http://localhost', 'http://127.0.0.1', 'http://3.109.88.70']
+const corsOptionsDelegate = function (req, callback) {
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;;
+    let corsOptions;
+    if(whitelistip.indexOf(req.header('Origin')) !== -1){
+        corsOptions = { origin: true, credentials: true, methods: ['GET', 'POST']}
+    } else {
+        corsOptions = { origin: false }
+    }
+    callback(null, corsOptions)
+}
+
 var corsOptions = {
     origin: frontend,
     methods: [
         'GET', 
         'POST'
     ],
-    credentials: true
+    credentials: true,
+
 };
 
 // Middlewares
@@ -39,6 +52,8 @@ mongoose.connect(process.env.DATABASE_URL,
 app.get('/', (req, res) => {
     return res.send("Hello World!")
 })
+
+app.options('*', cors())
 
 // Imported Routes for User
 require('./src/routes/auth2.routes')(app); // User Login
