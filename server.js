@@ -32,17 +32,10 @@ var corsOptions = {
     credentials: true,
 
 };
-if(process.env.PRODUCTION == 'local'){
-    console.log("LOCAL ENV")
-    app.use(cors(corsOptions))
-} else if(process.env.PRODUCTION == 'PRODUCTION'){
-    console.log("PRODUCTION ENV")
-    app.use(cors(corsOptionsDelegate))
-}
-console.log(process.env.PRODUCTION)
 
 // Middlewares
 app.use(cookieParser())
+app.use(cors(corsOptionsDelegate))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(logger('dev'))
