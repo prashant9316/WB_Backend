@@ -32,6 +32,11 @@ var corsOptions = {
     credentials: true,
 
 };
+if(process.env.ENV == 'local'){
+    app.use(cors(corsOptions))
+} else if(process.env.ENV == 'PRODUCTION'){
+    app.use(cors(corsOptionsDelegate))
+}
 
 // Middlewares
 app.use(cookieParser())
