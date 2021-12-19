@@ -1,6 +1,5 @@
-if(process.env.NODE_ENV !== 'production'){
-    require('dotenv').config()
-}
+require('dotenv').config()
+
 const frontend = 'http://127.0.0.1:8081'
 const express = require('express')
 const logger = require('morgan')
@@ -10,7 +9,8 @@ const mongoose = require('mongoose')
 
 const app = express()
 
-const whitelistip = ['http://localhost', 'http://127.0.0.1', 'http://3.109.88.70']
+const whitelistip = ['http://localhost', 'http://127.0.0.1', 'http://3.109.88.70',
+'https://localhost', 'https://127.0.0.1', 'https://3.109.88.70' ]
 const corsOptionsDelegate = function (req, callback) {
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;;
     let corsOptions;

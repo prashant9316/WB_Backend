@@ -10,6 +10,7 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_TEST_KEY_SECRET
 })
 
+
 exports.getUserOrders = async(req, res) => {
     try {
         const userOrders = await UserOrders.find({ user_id: req.user.id })
@@ -39,6 +40,7 @@ exports.getUserOrder = async(req, res) => {
     }
 }
 
+
 exports.createOrder =async(req, res) => {
     try {
         const userCart = await UserCart.find({ user_id: req.user.id })
@@ -52,12 +54,7 @@ exports.createOrder =async(req, res) => {
             all_order_ids: [],
             payment_id: shortid.generate()
         }
-        // var total_payment;
-        // var total_cost;
-        // let final_cost;
-        // let all_order_ids = [];
-        // let payment_id = shortid.generate();
-        console.log(userCart)
+        
         for(let i = 0; i < userCart.length; i++){
             let item = userCart[i];
             const userTrip = await UserTrips.findOne({ trip_id: item.trip_id })
@@ -134,7 +131,6 @@ exports.getPaymentDetails = async(req, res) => {
             order_id: userPayment.payment_order_id,
             currency: "INR",
             razorpay_key: process.env.RAZORPAY_TEST_KEY_ID,
-            
         }
         return res.status(200).json({ code: 200, data })
     } catch (error) {
@@ -142,6 +138,34 @@ exports.getPaymentDetails = async(req, res) => {
         return res.status(500).json({ message: error, code: 500 })
     }
 }
+
+
+exports.verifyPayment = async(req, res) => {
+    try {
+        const crypto = require('crypto')
+        const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_TEST_API_SECRET)
+        const digest = shasum.digest('hex')
+        if(req.headers['x-razorpay-signature'] === digest ){
+            order = req.body.payload.payment.entity;
+            console.log("Successfull payment!");
+            console.log(order)
+            await UserPayments.findOneAndUpdate({ razorpay_order_id: order.order_id}, {$set: {
+                payment_status: true,
+                payement_id: order.id
+            }})
+            await UserOrders.findByIdAndUpdate({ razorpay_order_id: order.order_id }, { 
+                payment_id: order.id,
+                payment_status: true
+            })
+            await UserCart.deleteMany({ user_id: req.user.id });
+            return res.status(200).json({ message: "Successful!" })
+        }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: error, code: 500 })
+    }
+}
+
 
 exports.cancelTrip =async(req, res) => {
     try {

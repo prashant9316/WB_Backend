@@ -24,6 +24,11 @@ module.exports = function(app){
     )
 
     app.post(
+        '/api/payment/razorpay-verification',
+        controller.verifyPayment
+    )
+
+    app.post(
         '/api/user/request-cancel-order',
         controller.cancelTrip
     )
