@@ -33,8 +33,10 @@ var corsOptions = {
 
 };
 if(process.env.ENV == 'local'){
+    console.log("LOCAL ENV")
     app.use(cors(corsOptions))
 } else if(process.env.ENV == 'PRODUCTION'){
+    console.log("PRODUCTION ENV")
     app.use(cors(corsOptionsDelegate))
 }
 
