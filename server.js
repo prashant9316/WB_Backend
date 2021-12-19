@@ -35,7 +35,7 @@ var corsOptions = {
 
 // Middlewares
 app.use(cookieParser())
-app.use(cors(corsOptionsDelegate))
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(logger('dev'))

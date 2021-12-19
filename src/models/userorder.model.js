@@ -64,6 +64,9 @@ const UserOrders = mongoose.model(
         final_cost: {
             type: Number
         },
+        place: {
+            type: String
+        },
         members_details: [{
             name: String,
             age: Number,

@@ -15,10 +15,10 @@ exports.getUserOrders = async(req, res) => {
     try {
         const userOrders = await UserOrders.find({ user_id: req.user.id })
         if(!userOrders){
-            return res.status(200).json({ cart: [] })
+            return res.status(200).json({ orders: [] })
         }
         else {
-            return res.status(200).json({ cart: userOrders })
+            return res.status(200).json({ orders: userOrders })
         }
     } catch (err) {
         return res.status(500).json({ message: err, code: 500 })
@@ -62,7 +62,9 @@ exports.createOrder =async(req, res) => {
             let discount_per = 0;
             let discount_amt = payment.total_cost*discount_per;
             payment.final_cost = payment.total_cost - discount_amt;
+            console.log(item)
             let newUserOrder = new UserOrders({
+                place: item.place,
                 user_id: req.user.id,
                 trip_id: item.trip_id,
                 members: item.members,
@@ -71,19 +73,15 @@ exports.createOrder =async(req, res) => {
                 trip_unique_id: userTrip._id,
                 price: item.price,
                 total_cost: payment.total_cost,
-                place: item.place,
                 discount_per,
                 discount_amt,
                 final_cost: payment.final_cost 
             })
+            console.log(newUserOrder)
             payment.total_payment += payment.final_cost
-            console.log("total_cost:"+payment.total_cost)
-            console.log("final_cost: "+payment.final_cost)
             payment.all_order_ids.push(newUserOrder.order_id);
             await newUserOrder.save()
         }
-        console.log(payment.total_cost);
-        console.log(payment.final_cost);
         const amount = (payment.total_payment * 100).toString();
         const currency = 'INR';
 
@@ -92,7 +90,10 @@ exports.createOrder =async(req, res) => {
             currency,
             receipt: shortid.generate()
         }
+        if(amount == 0){
+            return res.status(404).json({ message: "Cart is Empty!", code: 404 });
 
+        }
         const response = await razorpay.orders.create(options);
         const newPayment = new UserPayments({
             payment_order_id: response.id,
@@ -102,10 +103,8 @@ exports.createOrder =async(req, res) => {
             payment_amt: payment.total_payment
         })
         for(let i = 0; i < payment.all_order_ids.length; i++){
-            console.log(payment.all_order_ids[i])
             newPayment.order_ids.push({ order_id: payment.all_order_ids[i] })
         }
-        console.log(newPayment)
         await newPayment.save();
 
         await UserOrders.updateMany({ user_id: req.user.id }, {
@@ -169,12 +168,8 @@ exports.verifyPayment = async(req, res) => {
 
 exports.cancelTrip =async(req, res) => {
     try {
-        const userCartItem = await UserCart.findOne({ user_id: req.user.id, _id: req.body.trip_unique_id })
-        if(!userCartItem){
-            return res.status(404).json({ message: "Item does not exist in Cart", code: 404 })
-        }
-        await UserCart.deleteOne({ user_id: req.user.id, _id: req.body.trip_unique_id })
-        return res.status(200).json({ message: "Trip removed from Cart!", code: 200 })
+        throw "Illegal Action Error!"
+        return res.status(200).json({ message: "Method NOt Support from Cart!", code: 200 })
     } catch (error) {
         return res.status(500).json({ message: error, code: 500 })
     }
