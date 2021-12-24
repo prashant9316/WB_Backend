@@ -21,18 +21,26 @@ verifyToken = (req, res, next) => {
 };
 
 isAdmin = (req, res, next) => {
-    User.findById(req.user.id).exec((err, user) => {
-        if(err) {
-            res.status(500).send({ message: err })
-            return;
-        }
+    const token = req.cookies.AuthToken
+    if(!token){
+        return res.status(403).send({ message: "No token provided" });
+    }
 
-        if(req.user.role == 'admin'){
-            next();
-        } else {
+    jwt.verify(token, process.env.SECRET_TOKEN, (err, decoded) => {
+        if(err){
             return res.status(401).send({ message: "Unauthorized!" });
         }
-    })
+        req.user = {
+            id: decoded._id,
+            role: decoded.role
+        }
+        console.log(req.user)
+        if(req.user.role == 'admin'){
+            next();
+        }else {
+            return res.status(401).json({message: "UnAuthorized Access", code: 401})
+        }
+    });
 }
 
 const authJwt = {

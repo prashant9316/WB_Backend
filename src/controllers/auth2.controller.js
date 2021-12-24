@@ -1,6 +1,6 @@
 const User = require('../models/user.model')
 const UserOtp = require('../models/userotp.model');
-const { otpService, jwtService } = require('../services');
+const { otpService, jwtService, smsService } = require('../services');
 
 exports.checkLogin = async(req, res) => {
     return res.status(200).json({ message: "user logged in"})
@@ -12,6 +12,11 @@ exports.sendOtp = async(req, res) => {
             phoneNumber: req.body.phoneNumber
         })
         const otp = otpService.generateOtp(6)
+        req.data = {
+            otp,
+            phoneNumber: req.body.phoneNumber
+        }
+        const sms_otp = smsService.sendOTP(req)
         // User does not exists 
         if(!user){
             const newUser = new User({

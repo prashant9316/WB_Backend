@@ -35,10 +35,10 @@ var corsOptions = {
 
 // Middlewares
 app.use(cookieParser())
-app.use(cors(corsOptionsDelegate))
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(logger('dev'))
+// app.use(logger('dev'))
 
 
 // Mongoose ODM
@@ -61,6 +61,7 @@ require('./src/routes/auth2.routes')(app); // User Login
 require('./src/routes/userprofile.routes')(app);
 require('./src/routes/cart.routes')(app);
 require('./src/routes/order.routes')(app);
+require('./src/routes/event.routes')(app);
 
 // Starting the Server
 app.listen(process.env.PORT || 5000, () => {

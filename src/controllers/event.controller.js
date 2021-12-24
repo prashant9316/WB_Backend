@@ -1,0 +1,138 @@
+const Events = require('../models/event.model')
+
+exports.getAllEvents = async(req, res) => {
+    try {
+        const events = await Events.find({})
+        if(!events) {
+            return res.status(200).json({ events: [] , code: 200})
+        }
+        return res.status(200).json({ events: events , code: 200})
+    } catch (err) {
+        return res.status(500).json({message: err, code: 500})
+    }
+}
+
+exports.newEvent = async(req, res) => {
+    try {
+        const newEvent = new Events({
+            event_name: req.body.event_name,
+            active: req.body.event_status,
+            featured_destination: req.body.destination,
+            latest: req.body.is_latest,
+            details: req.body.event_details,
+            price: req.body.event_price,
+            discount: req.body.discount,
+            max_registrations: req.body.max_registrations,
+            registrations: 0,
+            event_banner_link: req.body.banner_link
+        })
+        await newEvent.save()
+        return res.status(200).json({ message: "New Event Created!", code: 200})
+    } catch (err) {
+        return res.status(500).json({message: err, code: 500})
+    }
+}
+
+exports.updateEvent = async(req, res) => {
+    try {
+        await Events.findOneAndUpdate({ event: req.params.event}, {$set: {
+            event_name: req.body.event_name,
+            event_banner_link: req.body.event_banner_link,
+            featured_destination: req.body.destination,
+            latest: req.body.is_latest,
+            details: req.body.event_details,
+
+        }})
+    } catch (err) {
+        return res.status(500).json({message: err, code: 500})
+    }
+}
+
+exports.activateEvent = async(req, res) => {
+    try {
+        await Events.findOneAndUpdate({ event_id: req.params.event}, {$set: {
+            active: true
+        }})
+        return res.status(200).json({message: "Activated the event", code: 200})
+    } catch (err) {
+        return res.status(500).json({message: err, code: 500})
+    }
+}
+
+exports.deactivateEvent = async(req, res) => {
+    try {
+        await Events.findOneAndUpdate({ event_id: req.params.event}, {$set: {
+            active: false
+        }})
+        return res.status(200).json({message: "Deactivated the event", code: 200})
+    } catch (err) {
+        return res.status(500).json({message: err, code: 500})
+    }
+}
+
+exports.getAllCoupons = async(req, res) => {
+    try {
+        const event = await Events.findOne({ event_id: req.params.event })
+        return res.status(200).json({ coupons: event.coupon_allowed, code: 200 })
+    } catch (err) {
+        return res.status(500).json({message: err, code: 500})
+    }
+}
+
+exports.addCoupon = async(req, res) => {
+    try {
+        const event = await Events.findOne({ event: req.params.event })
+        coupon_allowed = event.coupon_allowed;
+        coupon_allowed.push({
+            coupon_name: req.body.coupon_name,
+            max_amt: req.body.discount_amount,
+            featured: req.body.featured,
+            active: req.body.status,
+            discount_per: req.body.discount_percent
+        })
+        console.log(coupon_allowed)
+        await Events.findOneAndUpdate({event: req.params.event}, {$set: {
+            coupon_allowed
+        }}) 
+        return res.status(200).json({ message: "Added new coupon", code: 200})
+    } catch (err) {
+        return res.status(500).json({message: err, code: 500})
+    }
+}
+
+exports.activateCoupon = async(req, res) => {
+    try {
+        const event = await Events.findOne({ event: req.params.event })
+        let coupon_allowed= event.coupon_allowed
+        for(let i=0; i < coupon_allowed.length; i++){
+            if(coupon_allowed[i].coupon_name == req.params.coupon_name){
+                coupon_allowed[i].active = true;
+            }
+        }
+        await Events.findOneAndUpdate({event: req.params.event}, {$set: {
+            coupon_allowed: coupon_allowed
+        }})
+        return res.status(200).json({ message: "Event Coupon Activated!", code: 200})
+    } catch (err) {
+        return res.status(500).json({message: err, code: 500})
+    }
+}
+
+exports.deactivateCoupon = async(req, res) => {
+    try {
+        const event = await Events.findOne({ event: req.params.event })
+        coupon_allowed= event.coupon_allowed
+        for(let i=0; i < coupon_allowed.length; i++){
+            if(coupon_allowed[i].coupon_name == req.params.coupon_name){
+                coupon_allowed[i].active = false
+            }
+        }
+        await Events.findOneAndUpdate({event: req.params.event}, {$set: {
+            coupon_allowed: coupon_allowed
+        }})
+
+        return res.status(200).json({ message: "Event Coupon Deactivated!", code: 200})
+    } catch (err) {
+        return res.status(500).json({message: err, code: 500})
+    }
+}
