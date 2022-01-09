@@ -4,15 +4,15 @@ const { verifyToken, isAdmin } = require('../middlewares/authJwt')
 module.exports = function(app){
     app.use(isAdmin)
     app.get(
-        '/api/admin/all-event', 
+        '/api/admin/all-event',
         controller.getAllEvents
     )
     app.post(
-        '/api/admin/create-event', 
+        '/api/admin/create-event',
         controller.newEvent
     )
     app.post(
-        '/api/admin/update-event/:event', 
+        '/api/admin/update-event/:event',
         controller.updateEvent
     )
     app.post(

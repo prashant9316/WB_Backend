@@ -12,18 +12,44 @@ exports.getAllEvents = async(req, res) => {
     }
 }
 
+exports.getEvent = async(req, res) => {
+    try {
+        const event = await Events.findOne({ slug: req.params.slug })
+        if(!event){
+            return res.redirect('/')
+        } else {
+            return res.status(200).json({ event })
+        }
+    } catch (error) {
+        return res.redirect('/events')
+    }
+}
+
 exports.newEvent = async(req, res) => {
+    console.log(req.body);
     try {
         const newEvent = new Events({
-            event_name: req.body.event_name,
+            event_title: req.body.event_name,
             active: req.body.event_status,
-            featured_destination: req.body.destination,
-            latest: req.body.is_latest,
-            details: req.body.event_details,
-            price: req.body.event_price,
-            discount: req.body.discount,
-            max_registrations: req.body.max_registrations,
+            event_tagline: req.body.tagline,
             registrations: 0,
+            event_video_link: req.body.video_link,
+            event_about: req.body.event_about,
+            event_where: req.body.event_venue,
+            event_time: req.body.event_time,
+            event_days: req.body.event_days,
+            event_places: [],
+            itenary: {
+                nodays: req.body.nodays,
+                schedule: []
+            },
+            tickets: [],
+            event_contact: {
+                address: req.body.contact_address,
+                mobile_number: req.body.contact_number,
+                email: req.body.contact_email
+            },
+            max_registrations: req.body.max_registrations,
             event_banner_link: req.body.banner_link
         })
         await newEvent.save()

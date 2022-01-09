@@ -1,6 +1,8 @@
 require('dotenv').config()
 
 const frontend = 'http://127.0.0.1:8081'
+const admin = 'http://127.0.0.1:5000'
+
 const express = require('express')
 const logger = require('morgan')
 const cookieParser = require('cookie-parser')
@@ -29,13 +31,12 @@ var corsOptions = {
         'GET', 
         'POST'
     ],
-    credentials: true,
-
+    credentials: true
 };
 
 // Middlewares
 app.use(cookieParser())
-app.use(cors(corsOptionsDelegate))
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(logger('dev'))
@@ -57,6 +58,7 @@ app.get('/', (req, res) => {
 app.options('*', cors())
 
 // Imported Routes for User
+require('./src/routes/events.routes')(app);
 require('./src/routes/auth2.routes')(app); // User Login
 require('./src/routes/userprofile.routes')(app);
 require('./src/routes/cart.routes')(app);

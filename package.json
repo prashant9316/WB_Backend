@@ -27,6 +27,7 @@
     "passport-jwt": "^4.0.0",
     "razorpay": "^2.8.0",
     "shortid": "^2.2.16",
+    "slugify": "^1.6.5",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
